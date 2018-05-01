@@ -3,12 +3,13 @@ import _ from 'lodash';
 import fontawesome from '@fortawesome/fontawesome';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import solids from '@fortawesome/fontawesome-free-solid';
+import jQuery from 'jquery';
 import 'bulma/css/bulma.css';
-import './App.css';
+import './main_query.css';
 
 fontawesome.library.add(solids);
 
-export default class App extends Component {
+export default class Main_Query extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
@@ -23,11 +24,15 @@ export default class App extends Component {
   }
 
   getUserLists = async () => {
-    const response = await fetch('/api/hello');
+    const fetchStr = "/populateUsers/?" + jQuery.param({user: this.state.queryUsers}, true);
+    console.log(fetchStr);
+    const response = await fetch(fetchStr);
     const body = await response.json();
 
     if (response.status !== 200) throw Error(body.message);
-    console.log(body);
+
+    this.props.setUserList(body.planList);
+
     return body;
   };
 
