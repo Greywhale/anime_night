@@ -29,10 +29,13 @@ app.get('/populateUsers', (req, res) => {
         userList[inputValues[i]] = sortedAnime;
       });
     }
-    const planList = createJointPlanList();
-    res.send({ planList: planList });
+    res.send({ isFinished: true });
   });
-  
+});
+
+app.get('/jointPlanList', (req, res) => {
+  const planList = createJointPlanList();
+  res.send({ planList: planList });
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
@@ -69,7 +72,14 @@ function createJointPlanList() {
     const userObj = userList[user];
     const indivPlanList = userObj.plan;
     for(const indivAnime in indivPlanList){
-      jointPlanList[indivPlanList[indivAnime].series_title] = "";
+      const animeObj = indivPlanList[indivAnime];
+      console.log(animeObj);
+      jointPlanList[indivPlanList[indivAnime].series_title] = {
+        name: animeObj.series_title,
+        picture: animeObj.series_image,
+        lastUpdate: animeObj.my_last_updated,
+        totalEpisodes: animeObj.series_episodes
+      };
     }
 
     const keyArray = ['watching', 'completed', 'onHold', 'dropped'];

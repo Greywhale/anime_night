@@ -18,28 +18,37 @@ export default class Main_Query extends Component {
     this.onAnalyze = this.onAnalyze.bind(this);
 
     this.state = {
-      queryUsers: [],
+      queryUsers: ['greywhale', 'pettahman'],
       userInput: null,
     };
   }
-
-  getUserLists = async () => {
-    const fetchStr = "/populateUsers/?" + jQuery.param({user: this.state.queryUsers}, true);
-    console.log(fetchStr);
-    const response = await fetch(fetchStr);
-    const body = await response.json();
-
-    if (response.status !== 200) throw Error(body.message);
-
-    this.props.setUserList(body.planList);
-
-    return body;
-  };
 
   handleChange({ target }) {
     this.setState({
       userInput: target.value,
     });
+  }
+
+    //TODO: need to hand if invalid user
+  getUserLists = async () => {
+    const fetchStr = "/populateUsers/?" + jQuery.param({user: this.state.queryUsers}, true);
+    const response = await fetch(fetchStr);
+    const body = await response.json();
+
+    if (response.status !== 200) throw Error(body.message);
+  
+    return body;
+  };
+    
+  onAnalyze(){
+    this.getUserLists()
+      .then(res => {
+        console.log(res);
+        this.props.setUserList(this.state.queryUsers);
+      })
+      .catch(
+        err => console.log(err)
+      );
   }
 
   onRemoveUser(userName) {
@@ -69,21 +78,11 @@ export default class Main_Query extends Component {
     this.userInput.focus();
   }
 
-  onAnalyze(){
-    this.getUserLists()
-      .then(
-        res => this.setState({ response: res.express })
-      )
-      .catch(
-        err => console.log(err)
-      );
-  }
-
   render() {
     const inputMap = [];
     _.map(this.state.queryUsers, (user) => {
       inputMap.push(
-        <a className="panel-block">
+        <a className="panel-block" key={user}>
           {user}
           <div className="delete_user" onClick={() => { this.onRemoveUser(user); }}>
             <FontAwesomeIcon icon="times-circle" />
@@ -106,7 +105,7 @@ export default class Main_Query extends Component {
             type="text"
             placeholder="User Name"
             id="username_input"
-            value={this.state.userInput}
+            value={(this.state.userInput) ? this.state.userInput : ''}
             onChange={this.handleChange}
             ref={(input) => { this.userInput = input; }}
           />
@@ -146,3 +145,4 @@ export default class Main_Query extends Component {
 // black borders
 // icon and title
 // grey out analyze until 2 users
+// should this be split into smart and dumb?
